@@ -24,7 +24,11 @@ app.post("/api/quote", (req, res) => {
   }
 
   console.log("New Quote Request:", req.body);
-
+app.post("/api/quote", (req, res) => {
+  const quote = req.body;
+  console.log("Received quote:", quote);
+  res.json({ message: "Quotation received successfully" });
+});
   // In production, you can save this to a database here
 
   res.json({ message: "Quotation submitted successfully!" });
