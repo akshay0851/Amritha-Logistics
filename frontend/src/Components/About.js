@@ -3,8 +3,6 @@ import Footer from "./Footer";
 import Navbar from "./Navbar";
 import "./About.css";
 import team1 from "../img/team1.png";
-import team2 from "../img/team2.png";
-import team3 from "../img/team3.png";
 
 function About() {
   return (
