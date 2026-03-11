@@ -1,10 +1,10 @@
+// src/Components/QuotationForm.js
 import React, { useState } from "react";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
 import "./Quotation.css";
 
 function QuotationForm() {
-
   const [company, setCompany] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -13,7 +13,7 @@ function QuotationForm() {
   const [date, setDate] = useState("");
   const [material, setMaterial] = useState("");
   const [weight, setWeight] = useState("");
-  const [vehicleType, setVehicleType] = useState(""); // ✅ FIX
+  const [vehicleType, setVehicleType] = useState("");
   const [loadType, setLoadType] = useState("");
 
   const handleSubmit = async (e) => {
@@ -28,44 +28,52 @@ function QuotationForm() {
       date,
       material,
       weight,
-      vehicleType, // ✅ FIX
+      vehicleType,
       loadType
     };
 
     try {
-      const response = await fetch("https://amritha-logistics-backend.onrender.com", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await fetch(
+        "https://amritha-logistics-backend.onrender.com/api/quote", // ✅ Correct backend route
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData)
+        }
+      );
 
-      const data = await response.json();
+      // ✅ Check content type before parsing JSON
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await response.json();
+        alert(data.message || "Quotation submitted successfully");
 
-      alert(data.message || "Quotation submitted successfully");
+        // Reset form after successful submission
+        setCompany("");
+        setEmail("");
+        setPhone("");
+        setPickup("");
+        setDrop("");
+        setDate("");
+        setMaterial("");
+        setWeight("");
+        setVehicleType("");
+        setLoadType("");
 
-      // Reset form
-      setCompany("");
-      setEmail("");
-      setPhone("");
-      setPickup("");
-      setDrop("");
-      setDate("");
-      setMaterial("");
-      setWeight("");
-      setVehicleType(""); // ✅ FIX
-      setLoadType("");
+      } else {
+        const text = await response.text();
+        console.error("Expected JSON but got HTML:", text);
+        alert("Server error! Check backend API route.");
+      }
 
     } catch (error) {
-      console.error(error);
-      alert("Error submitting quotation");
+      console.error("Error submitting quotation:", error);
+      alert("Something went wrong! Try again later.");
     }
   };
 
   return (
     <div className="quotation-page">
-
       <Navbar />
 
       {/* Hero Section */}
@@ -79,7 +87,6 @@ function QuotationForm() {
 
       {/* Form Section */}
       <section className="quotation-section">
-
         <form className="quotation-form" onSubmit={handleSubmit}>
 
           <h2>Your Company Details</h2>
@@ -91,7 +98,6 @@ function QuotationForm() {
             onChange={(e) => setCompany(e.target.value)}
             required
           />
-
           <input
             type="email"
             placeholder="Email Address"
@@ -99,7 +105,6 @@ function QuotationForm() {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
-
           <input
             type="tel"
             placeholder="Phone Number"
@@ -108,6 +113,8 @@ function QuotationForm() {
             required
           />
 
+          <h2>Shipment Details</h2>
+
           <input
             type="text"
             placeholder="Pickup Location"
@@ -115,7 +122,6 @@ function QuotationForm() {
             onChange={(e) => setPickup(e.target.value)}
             required
           />
-
           <input
             type="text"
             placeholder="Drop Location"
@@ -123,14 +129,12 @@ function QuotationForm() {
             onChange={(e) => setDrop(e.target.value)}
             required
           />
-
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
             required
           />
-
           <input
             type="text"
             placeholder="Material"
@@ -138,7 +142,6 @@ function QuotationForm() {
             onChange={(e) => setMaterial(e.target.value)}
             required
           />
-
           <input
             type="text"
             placeholder="Weight (kg)"
@@ -174,13 +177,10 @@ function QuotationForm() {
           <button type="submit" className="quotation-button">
             Get Quotation
           </button>
-
         </form>
-
       </section>
 
       <Footer />
-
     </div>
   );
 }

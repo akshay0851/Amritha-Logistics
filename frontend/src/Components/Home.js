@@ -32,11 +32,12 @@ function Home() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // ✅ Fixed handleSubmit to avoid HTML parsing error
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const response = await fetch(
-        "https://amritha-logistics-backend.onrender.com/api/quote", // ✅ Make sure backend has this route
+        "https://amritha-logistics-backend.onrender.com/api/quote", // must match deployed backend API
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -44,43 +45,40 @@ function Home() {
         }
       );
 
-      // ✅ Check if response is JSON
-      let data;
+      // Check if backend returned JSON
       const contentType = response.headers.get("content-type");
       if (contentType && contentType.includes("application/json")) {
-        data = await response.json();
+        const data = await response.json();
+        alert(data.message);
+
+        // Clear form after success
+        setFormData({
+          company: "",
+          pickup: "",
+          drop: "",
+          date: "",
+          material: "",
+          weight: "",
+          vehicleType: "",
+          loadType: "FTL"
+        });
       } else {
         const text = await response.text();
-        console.error("Expected JSON but got:", text);
-        alert("Something went wrong! Check backend route.");
-        return;
+        console.error("Expected JSON but got HTML:", text);
+        alert("Server response error. Check backend URL.");
       }
-
-      alert(data.message);
-      // ✅ Clear form after success
-      setFormData({
-        company: "",
-        pickup: "",
-        drop: "",
-        date: "",
-        material: "",
-        weight: "",
-        vehicleType: "",
-        loadType: "FTL"
-      });
     } catch (error) {
-      console.error("Error:", error);
-      alert("Something went wrong! Please try again.");
+      console.error("Error submitting quote:", error);
+      alert("Something went wrong! Try again later.");
     }
   };
 
-  const setLoadType = (type) => {
-    setFormData({ ...formData, loadType: type });
-  };
+  const setLoadType = (type) => setFormData({ ...formData, loadType: type });
 
   const [currentHero, setCurrentHero] = useState(0);
   const heroImages = [hero1, hero2, hero3];
 
+  // ✅ Count-up animation for stats
   useEffect(() => {
     const counters = document.querySelectorAll(".count");
     const speed = 200;
@@ -111,7 +109,6 @@ function Home() {
       },
       { threshold: 1 }
     );
-
     counters.forEach((counter) => countObserver.observe(counter));
 
     const statBoxes = document.querySelectorAll(".stat-box");
@@ -126,10 +123,10 @@ function Home() {
       },
       { threshold: 0.3 }
     );
-
     statBoxes.forEach((box) => boxObserver.observe(box));
   }, []);
 
+  // ✅ Hero slider
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentHero((prev) => (prev + 1) % heroImages.length);
@@ -137,6 +134,7 @@ function Home() {
     return () => clearInterval(interval);
   }, [heroImages.length]);
 
+  // ✅ Testimonials
   const testimonials = [
     {
       name: "Arjun Kumar",
@@ -209,9 +207,9 @@ function Home() {
         </div>
       </section>
 
-      {/* Services, Stats, Testimonials, Quotation sections remain same */}
-      {/* ... you can keep your previous JSX for these sections ... */}
-
+      {/* Services, Stats, Testimonials, Quotation sections */}
+      {/* Make sure your form's onSubmit={handleSubmit} */}
+      {/* Stats section should have <h2 className="count" data-target="100">0</h2> etc. */}
       <Footer />
     </div>
   );
