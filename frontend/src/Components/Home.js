@@ -28,69 +28,61 @@ function Home() {
     loadType: "FTL"
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await fetch(
-        "https://amritha-logistics-backend.onrender.com/api/quote", // ✅ Correct backend route
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData)
-        }
-      );
-
-      if (!response.ok) {
-        const text = await response.text();
-        console.error("Backend error:", text);
-        alert("Error submitting quotation. Check backend API route.");
-        return;
-      }
-
-      const contentType = response.headers.get("content-type");
-      let data;
-      if (contentType && contentType.includes("application/json")) {
-        data = await response.json();
-      } else {
-        const text = await response.text();
-        console.error("Expected JSON but got:", text);
-        alert("Unexpected response from backend.");
-        return;
-      }
-
-      alert(data.message || "Quotation submitted successfully!");
-
-      // Reset form after success
-      setFormData({
-        company: "",
-        pickup: "",
-        drop: "",
-        date: "",
-        material: "",
-        weight: "",
-        vehicleType: "",
-        loadType: "FTL"
-      });
-
-    } catch (error) {
-      console.error("Error submitting quotation:", error);
-      alert("Something went wrong! Please try again.");
-    }
   };
 
   const setLoadType = (type) => {
     setFormData({ ...formData, loadType: type });
   };
 
-  const [currentHero, setCurrentHero] = useState(0);
-  const heroImages = [hero1, hero2, hero3];
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        "https://amritha-logistics-backend.onrender.com/api/quote",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await response.json();
+        alert(data.message);
+        // Reset form
+        setFormData({
+          company: "",
+          pickup: "",
+          drop: "",
+          date: "",
+          material: "",
+          weight: "",
+          vehicleType: "",
+          loadType: "FTL"
+        });
+      } else {
+        const text = await response.text();
+        console.error("Expected JSON but got:", text);
+        alert("Something went wrong! Check backend route.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Error submitting quotation");
+    }
+
+    setLoading(false);
+  };
 
   // Hero slider
+  const heroImages = [hero1, hero2, hero3];
+  const [currentHero, setCurrentHero] = useState(0);
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentHero((prev) => (prev + 1) % heroImages.length);
@@ -98,11 +90,10 @@ function Home() {
     return () => clearInterval(interval);
   }, [heroImages.length]);
 
-  // Stats count-up animation
+  // Stats count-up
   useEffect(() => {
     const counters = document.querySelectorAll(".count");
     const speed = 200;
-
     const countUp = (el) => {
       const target = +el.getAttribute("data-target");
       let count = 0;
@@ -117,35 +108,18 @@ function Home() {
       };
       update();
     };
-
-    const countObserver = new IntersectionObserver(
+    const observer = new IntersectionObserver(
       (entries) => {
-        entries.forEach((entry) => {
+        entries.forEach(entry => {
           if (entry.isIntersecting) {
             countUp(entry.target);
-            countObserver.unobserve(entry.target);
+            observer.unobserve(entry.target);
           }
         });
       },
       { threshold: 1 }
     );
-
-    counters.forEach((counter) => countObserver.observe(counter));
-
-    const statBoxes = document.querySelectorAll(".stat-box");
-    const boxObserver = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
-            boxObserver.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.3 }
-    );
-
-    statBoxes.forEach((box) => boxObserver.observe(box));
+    counters.forEach(counter => observer.observe(counter));
   }, []);
 
   // Testimonials
@@ -172,14 +146,13 @@ function Home() {
       avatar: "https://api.dicebear.com/6.x/micah/png?seed=Arjun&mouth=smile"
     }
   ];
-
   const [currentIndex, setCurrentIndex] = useState(0);
   const [paused, setPaused] = useState(false);
 
   useEffect(() => {
     if (!paused) {
       const timer = setInterval(() => {
-        setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+        setCurrentIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
       }, 5000);
       return () => clearInterval(timer);
     }
@@ -221,128 +194,99 @@ function Home() {
         </div>
       </section>
 
-      {/* Quotation Form Section */}
+      {/* Quotation Form */}
       <section className="quote" id="quote">
         <h2>Request a Quotation</h2>
-        <p className="quote-intro">
-          Fill in the details below, and we will provide you with a tailored transport quotation.
-        </p>
-
+        <p>Fill in the details below, and we will provide you with a tailored transport quotation.</p>
         <form className="quote-form" onSubmit={handleSubmit}>
-
           <div className="form-row">
-            <div className="form-group">
-              <label>Company Name</label>
-              <input
-                type="text"
-                name="company"
-                placeholder="Company Name"
-                value={formData.company}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Pickup Location</label>
-              <input
-                type="text"
-                name="pickup"
-                placeholder="Pickup Location"
-                value={formData.pickup}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            <input
+              type="text"
+              name="company"
+              placeholder="Company Name"
+              value={formData.company}
+              onChange={handleChange}
+              required
+            />
+            <input
+              type="text"
+              name="pickup"
+              placeholder="Pickup Location"
+              value={formData.pickup}
+              onChange={handleChange}
+              required
+            />
           </div>
-
           <div className="form-row">
-            <div className="form-group">
-              <label>Drop Location</label>
-              <input
-                type="text"
-                name="drop"
-                placeholder="Drop Location"
-                value={formData.drop}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Date</label>
-              <input
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            <input
+              type="text"
+              name="drop"
+              placeholder="Drop Location"
+              value={formData.drop}
+              onChange={handleChange}
+              required
+            />
+            <input
+              type="date"
+              name="date"
+              value={formData.date}
+              onChange={handleChange}
+              required
+            />
           </div>
-
           <div className="form-row">
-            <div className="form-group">
-              <label>Material</label>
-              <input
-                type="text"
-                name="material"
-                placeholder="Material"
-                value={formData.material}
-                onChange={handleChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Weight (kg)</label>
-              <input
-                type="text"
-                name="weight"
-                placeholder="Weight"
-                value={formData.weight}
-                onChange={handleChange}
-                required
-              />
-            </div>
+            <input
+              type="text"
+              name="material"
+              placeholder="Material"
+              value={formData.material}
+              onChange={handleChange}
+              required
+            />
+            <input
+              type="text"
+              name="weight"
+              placeholder="Weight (kg)"
+              value={formData.weight}
+              onChange={handleChange}
+              required
+            />
           </div>
-
           <div className="form-row">
-            <div className="form-group">
-              <label>Vehicle Type</label>
-              <select
-                name="vehicleType"
-                value={formData.vehicleType}
-                onChange={handleChange}
-                required
+            <select
+              name="vehicleType"
+              value={formData.vehicleType}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select Vehicle Type</option>
+              <option value="LCV">LCV</option>
+              <option value="Container">Container</option>
+              <option value="Trailer">Trailer</option>
+              <option value="Taurus">Taurus</option>
+            </select>
+
+            <div className="toggle-buttons">
+              <button
+                type="button"
+                className={formData.loadType === "FTL" ? "active" : ""}
+                onClick={() => setLoadType("FTL")}
               >
-                <option value="">Select Vehicle Type</option>
-                <option value="LCV">LCV</option>
-                <option value="Container">Container</option>
-                <option value="Trailer">Trailer</option>
-                <option value="Taurus">Taurus</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Load Type</label>
-              <select
-                name="loadType"
-                value={formData.loadType}
-                onChange={handleChange}
-                required
+                Full Truck Load
+              </button>
+              <button
+                type="button"
+                className={formData.loadType === "PTL" ? "active" : ""}
+                onClick={() => setLoadType("PTL")}
               >
-                <option value="">Select Load Type</option>
-                <option value="FTL">Full Truck Load</option>
-                <option value="PTL">Part Truck Load</option>
-              </select>
+                Part Truck Load
+              </button>
             </div>
           </div>
 
-          <button type="submit" className="quote-button">
-            Get Quotation
+          <button type="submit" className="quote-button" disabled={loading}>
+            {loading ? "Submitting..." : "Get Quotation"}
           </button>
-
         </form>
       </section>
 

@@ -1,85 +1,77 @@
 // src/Components/Quotation.js
 import React, { useState } from "react";
-import Footer from "./Footer";
 import Navbar from "./Navbar";
+import Footer from "./Footer";
 import "./Quotation.css";
 
-function QuotationForm() {
-  const [company, setCompany] = useState("");
-  const [email, setEmail] = useState("");
-  const [phone, setPhone] = useState("");
-  const [pickup, setPickup] = useState("");
-  const [drop, setDrop] = useState("");
-  const [date, setDate] = useState("");
-  const [material, setMaterial] = useState("");
-  const [weight, setWeight] = useState("");
-  const [vehicleType, setVehicleType] = useState("");
-  const [loadType, setLoadType] = useState("");
+function Quotation() {
+  const [formData, setFormData] = useState({
+    company: "",
+    email: "",
+    phone: "",
+    pickup: "",
+    drop: "",
+    date: "",
+    material: "",
+    weight: "",
+    vehicleType: "",
+    loadType: "FTL",
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const setLoadType = (type) => {
+    setFormData({ ...formData, loadType: type });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const formData = {
-      company,
-      email,
-      phone,
-      pickup,
-      drop,
-      date,
-      material,
-      weight,
-      vehicleType,
-      loadType
-    };
+    setLoading(true);
 
     try {
       const response = await fetch(
-        "https://amritha-logistics-backend.onrender.com/api/quote", // ✅ Correct backend route
+        "https://amritha-logistics-backend.onrender.com/api/quote",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData)
+          body: JSON.stringify(formData),
         }
       );
 
-      // ✅ Handle non-OK responses
-      if (!response.ok) {
-        const text = await response.text();
-        console.error("Backend error:", text);
-        alert("Error submitting quotation. Check backend API route.");
-        return;
-      }
-
-      // ✅ Safely parse JSON
+      // ✅ Safe JSON parsing
       const contentType = response.headers.get("content-type");
-      let data;
       if (contentType && contentType.includes("application/json")) {
-        data = await response.json();
+        const data = await response.json();
+        alert(data.message);
+
+        // ✅ Reset form
+        setFormData({
+          company: "",
+          email: "",
+          phone: "",
+          pickup: "",
+          drop: "",
+          date: "",
+          material: "",
+          weight: "",
+          vehicleType: "",
+          loadType: "FTL",
+        });
       } else {
         const text = await response.text();
         console.error("Expected JSON but got:", text);
-        alert("Unexpected response from backend.");
-        return;
+        alert("Something went wrong! Check backend route.");
       }
-
-      alert(data.message || "Quotation submitted successfully!");
-
-      // ✅ Reset form
-      setCompany("");
-      setEmail("");
-      setPhone("");
-      setPickup("");
-      setDrop("");
-      setDate("");
-      setMaterial("");
-      setWeight("");
-      setVehicleType("");
-      setLoadType("");
-
     } catch (error) {
-      console.error("Error submitting quotation:", error);
-      alert("Something went wrong! Please try again.");
+      console.error(error);
+      alert("Error submitting quotation");
     }
+
+    setLoading(false);
   };
 
   return (
@@ -102,71 +94,80 @@ function QuotationForm() {
 
           <input
             type="text"
+            name="company"
             placeholder="Company Name"
-            value={company}
-            onChange={(e) => setCompany(e.target.value)}
+            value={formData.company}
+            onChange={handleChange}
             required
           />
 
           <input
             type="email"
+            name="email"
             placeholder="Email Address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={formData.email}
+            onChange={handleChange}
             required
           />
 
           <input
             type="tel"
+            name="phone"
             placeholder="Phone Number"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
+            value={formData.phone}
+            onChange={handleChange}
             required
           />
 
           <input
             type="text"
+            name="pickup"
             placeholder="Pickup Location"
-            value={pickup}
-            onChange={(e) => setPickup(e.target.value)}
+            value={formData.pickup}
+            onChange={handleChange}
             required
           />
 
           <input
             type="text"
+            name="drop"
             placeholder="Drop Location"
-            value={drop}
-            onChange={(e) => setDrop(e.target.value)}
+            value={formData.drop}
+            onChange={handleChange}
             required
           />
 
           <input
             type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
+            name="date"
+            value={formData.date}
+            onChange={handleChange}
             required
           />
 
           <input
             type="text"
+            name="material"
             placeholder="Material"
-            value={material}
-            onChange={(e) => setMaterial(e.target.value)}
+            value={formData.material}
+            onChange={handleChange}
             required
           />
 
           <input
             type="text"
+            name="weight"
             placeholder="Weight (kg)"
-            value={weight}
-            onChange={(e) => setWeight(e.target.value)}
+            value={formData.weight}
+            onChange={handleChange}
             required
           />
 
           {/* Vehicle Type */}
           <select
-            value={vehicleType}
-            onChange={(e) => setVehicleType(e.target.value)}
+            name="vehicleType"
+            value={formData.vehicleType}
+            onChange={handleChange}
             required
           >
             <option value="">Select Vehicle Type</option>
@@ -177,18 +178,25 @@ function QuotationForm() {
           </select>
 
           {/* Load Type */}
-          <select
-            value={loadType}
-            onChange={(e) => setLoadType(e.target.value)}
-            required
-          >
-            <option value="">Select Load Type</option>
-            <option value="FTL">Full Truck Load</option>
-            <option value="PTL">Part Truck Load</option>
-          </select>
+          <div className="toggle-buttons">
+            <button
+              type="button"
+              className={formData.loadType === "FTL" ? "active" : ""}
+              onClick={() => setLoadType("FTL")}
+            >
+              Full Truck Load
+            </button>
+            <button
+              type="button"
+              className={formData.loadType === "PTL" ? "active" : ""}
+              onClick={() => setLoadType("PTL")}
+            >
+              Part Truck Load
+            </button>
+          </div>
 
-          <button type="submit" className="quotation-button">
-            Get Quotation
+          <button type="submit" className="quotation-button" disabled={loading}>
+            {loading ? "Submitting..." : "Get Quotation"}
           </button>
         </form>
       </section>
@@ -198,4 +206,4 @@ function QuotationForm() {
   );
 }
 
-export default QuotationForm;
+export default Quotation;
