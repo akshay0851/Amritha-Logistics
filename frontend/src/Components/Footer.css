@@ -1,0 +1,142 @@
+.footer {
+  background: #0d1b2a;
+  color: #fff;
+  position: relative;
+  padding: 60px 20px 30px;
+  overflow: hidden;
+}
+
+.footer-overlay {
+  background: #0d1b2a;
+  padding: 20px 0;
+}
+
+.footer-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: auto;
+  padding: 20px;
+}
+
+.footer-section h2 {
+  color: #ffb703;
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+}
+
+.footer-section p {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: #ddd;
+}
+
+.footer-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.footer-section ul li {
+  margin: 12px 0;
+  color: #ccc;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-icon {
+  color: #ffb703;
+  font-size: 1.1rem;
+}
+
+.location-icon {
+  font-size: 1.3rem; /* Bigger for address */
+}
+
+.footer-section a {
+  color: #ccc;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-section a:hover {
+  color: #ffb703;
+}
+
+.quote-link {
+  font-weight: bold;
+  color: #ffb703;
+}
+
+.social-icons {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.social-icons a {
+  background: #222;
+  color: white;
+  border-radius: 50%;
+  padding: 10px;
+  font-size: 1.1rem;
+  transition: 0.3s;
+}
+
+.social-icons a:hover {
+  background: #ffb703;
+  color: #fff;
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 30px;
+  border-top: 1px solid #333;
+  padding-top: 15px;
+  font-size: 0.9rem;
+  color: #aaa;
+}
+
+@media (max-width: 1024px) {
+  .footer-container {
+    gap: 25px;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-container {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .footer-section ul li {
+    justify-content: center;
+  }
+
+  .social-icons {
+    justify-content: center;
+  }
+
+  .footer-icon,
+  .location-icon {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-section h2 {
+    font-size: 1.2rem;
+  }
+
+  .footer-section p,
+  .footer-section ul li {
+    font-size: 0.9rem;
+  }
+
+  .social-icons a {
+    padding: 8px;
+    font-size: 1rem;
+  }
+}

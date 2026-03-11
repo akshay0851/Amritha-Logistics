@@ -1,0 +1,174 @@
+/* Contact.css */
+
+
+/* Hero Section */
+.contact-hero {
+  position: relative;
+  height: 300px;
+  background: url("../img/Contact-Hero.png") center/cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.contact-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(13, 59, 102, 0.7);
+}
+
+.contact-hero-content {
+  position: relative;
+  text-align: center;
+  color: white;
+}
+
+.contact-hero-content h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+  font-family: "Poppins", sans-serif;
+}
+
+.contact-hero-content p {
+  font-size: 1.2rem;
+}
+
+/* Contact Section */
+.contact-section {
+  padding: 80px 50px;
+  background: #f7f7f7;
+}
+
+.contact-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 50px;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.contact-info {
+  flex: 1;
+  min-width: 300px;
+}
+
+.contact-info h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #0d3b66;
+}
+
+.contact-info p {
+  font-size: 1rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+/* Contact Form */
+.contact-form {
+  flex: 1;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.contact-form h2 {
+  color: #0d3b66;
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+.contact-form input,
+.contact-form textarea {
+  padding: 12px 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  resize: none;
+}
+
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: #f4d35e;
+}
+
+.contact-button {
+  background-color: #f4d35e;
+  color: #0d3b66;
+  border: none;
+  padding: 15px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.contact-button:hover {
+  background-color: #e1c54f;
+}
+/* Map Section */
+.map-section {
+  text-align: center;
+  background: linear-gradient(to right, #0d3b66, #144e8b);
+  color: white;
+  padding: 70px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.map-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 30px;
+  font-family: "Poppins", sans-serif;
+  position: relative;
+  z-index: 2;
+  animation: fadeInDown 1s ease;
+}
+
+.map-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  animation: fadeInUp 1.2s ease;
+}
+
+/* Animations */
+@keyframes fadeInDown {
+  from {
+    transform: translateY(-30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+
+/* Responsive */
+@media screen and (max-width: 900px) {
+  .contact-container {
+    flex-direction: column;
+    padding: 0 20px;
+  }
+
+  .contact-hero-content h1 {
+    font-size: 2.2rem;
+  }
+}
