@@ -1,4 +1,4 @@
-// src/Components/QuotationForm.js
+// src/Components/Quotation.js
 import React, { useState } from "react";
 import Footer from "./Footer";
 import Navbar from "./Navbar";
@@ -42,33 +42,43 @@ function QuotationForm() {
         }
       );
 
-      // ✅ Check content type before parsing JSON
+      // ✅ Handle non-OK responses
+      if (!response.ok) {
+        const text = await response.text();
+        console.error("Backend error:", text);
+        alert("Error submitting quotation. Check backend API route.");
+        return;
+      }
+
+      // ✅ Safely parse JSON
       const contentType = response.headers.get("content-type");
+      let data;
       if (contentType && contentType.includes("application/json")) {
-        const data = await response.json();
-        alert(data.message || "Quotation submitted successfully");
-
-        // Reset form after successful submission
-        setCompany("");
-        setEmail("");
-        setPhone("");
-        setPickup("");
-        setDrop("");
-        setDate("");
-        setMaterial("");
-        setWeight("");
-        setVehicleType("");
-        setLoadType("");
-
+        data = await response.json();
       } else {
         const text = await response.text();
-        console.error("Expected JSON but got HTML:", text);
-        alert("Server error! Check backend API route.");
+        console.error("Expected JSON but got:", text);
+        alert("Unexpected response from backend.");
+        return;
       }
+
+      alert(data.message || "Quotation submitted successfully!");
+
+      // ✅ Reset form
+      setCompany("");
+      setEmail("");
+      setPhone("");
+      setPickup("");
+      setDrop("");
+      setDate("");
+      setMaterial("");
+      setWeight("");
+      setVehicleType("");
+      setLoadType("");
 
     } catch (error) {
       console.error("Error submitting quotation:", error);
-      alert("Something went wrong! Try again later.");
+      alert("Something went wrong! Please try again.");
     }
   };
 
@@ -88,7 +98,6 @@ function QuotationForm() {
       {/* Form Section */}
       <section className="quotation-section">
         <form className="quotation-form" onSubmit={handleSubmit}>
-
           <h2>Your Company Details</h2>
 
           <input
@@ -98,6 +107,7 @@ function QuotationForm() {
             onChange={(e) => setCompany(e.target.value)}
             required
           />
+
           <input
             type="email"
             placeholder="Email Address"
@@ -105,6 +115,7 @@ function QuotationForm() {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
+
           <input
             type="tel"
             placeholder="Phone Number"
@@ -113,8 +124,6 @@ function QuotationForm() {
             required
           />
 
-          <h2>Shipment Details</h2>
-
           <input
             type="text"
             placeholder="Pickup Location"
@@ -122,6 +131,7 @@ function QuotationForm() {
             onChange={(e) => setPickup(e.target.value)}
             required
           />
+
           <input
             type="text"
             placeholder="Drop Location"
@@ -129,12 +139,14 @@ function QuotationForm() {
             onChange={(e) => setDrop(e.target.value)}
             required
           />
+
           <input
             type="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
             required
           />
+
           <input
             type="text"
             placeholder="Material"
@@ -142,6 +154,7 @@ function QuotationForm() {
             onChange={(e) => setMaterial(e.target.value)}
             required
           />
+
           <input
             type="text"
             placeholder="Weight (kg)"
