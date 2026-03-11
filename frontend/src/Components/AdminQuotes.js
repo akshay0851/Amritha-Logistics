@@ -5,14 +5,14 @@ function AdminQuotes() {
   const [quotes, setQuotes] = useState([]);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/quotes")
+    fetch("https://amritha-logistics-backend.onrender.com")
       .then(res => res.json())
       .then(data => setQuotes(data));
   }, []);
 
   const deleteQuote = async (id) => {
 
-  await fetch(`http://localhost:5000/api/quotes/${id}`, {
+  await fetch(`https://amritha-logistics-backend.onrender.com/${id}`, {
     method: "DELETE"
   });
 
