@@ -78,6 +78,42 @@
   transform: scale(1.03);
 }
 
+/* Load Type Toggle */
+
+.toggle-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+}
+
+.toggle-buttons button {
+  flex: 1;
+  padding: 14px;
+  border: 2px solid #ffb400;
+  background: white;
+  color: #ff8c00;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.toggle-buttons button:hover {
+  background: #fff3d4;
+}
+
+.toggle-buttons button.active {
+  background: linear-gradient(to right, #ffb400, #ff8c00);
+  color: white;
+  border-color: #ff8c00;
+  box-shadow: 0 5px 15px rgba(255,140,0,0.3);
+}
+
+.toggle-buttons button:focus {
+  outline: none;
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .quotation-section {
