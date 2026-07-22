@@ -3,13 +3,17 @@ const router = express.Router();
 const Quote = require("../models/Quote");
 const nodemailer = require("nodemailer");
 
-// ✅ Email transporter configuration
+const emailUser = process.env.EMAIL_USER || "salesamrithalog@gmail.com";
+const emailPass = process.env.EMAIL_PASS || "";
+
+// ✅ Email transporter configuration (explicit SMTP for reliability)
 const transporter = nodemailer.createTransport({
-  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  secure: true,
   auth: {
-    user: "salesamrithalog@gmail.com",
-    // It's best practice to use process.env.EMAIL_PASS here later
-    pass: "zqmthpzdbhbwildf" 
+    user: emailUser,
+    pass: emailPass
   }
 });
 
@@ -68,8 +72,8 @@ router.post("/quote", async (req, res) => {
 
     // 3. Email notification setup
     const mailOptions = {
-      from: "salesamrithalog@gmail.com",
-      to: "salesamrithalog@gmail.com",
+      from: emailUser,
+      to: emailUser,
       subject: `New Quote Request from ${company}`,
       text: `
         You have received a new quotation request:
@@ -87,14 +91,18 @@ router.post("/quote", async (req, res) => {
       `
     };
 
-    // 4. Send Email
-    await transporter.sendMail(mailOptions);
-    console.log("📧 Notification email sent successfully");
+    // 4. Send Email (skip if credentials are missing)
+    if (emailUser && emailPass) {
+      await transporter.sendMail(mailOptions);
+      console.log("📧 Notification email sent successfully");
+    } else {
+      console.warn("⚠️ Email skipped because SMTP credentials are not configured");
+    }
 
     // 5. Send final success response
     res.status(201).json({
       success: true,
-      message: "Quotation submitted and email sent successfully!"
+      message: "Quotation submitted successfully"
     });
 
   } catch (error) {
