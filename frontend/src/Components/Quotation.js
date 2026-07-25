@@ -19,13 +19,20 @@ function Quotation() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const setLoadType = (type) => {
-    setFormData({ ...formData, loadType: type });
+    setFormData({
+      ...formData,
+      loadType: type,
+    });
   };
 
   const handleSubmit = async (e) => {
@@ -37,38 +44,46 @@ function Quotation() {
         "https://amritha-logistics-backend.onrender.com/api/quote",
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify(formData),
         }
       );
 
-      // ✅ Safe JSON parsing
       const contentType = response.headers.get("content-type");
+
       if (contentType && contentType.includes("application/json")) {
         const data = await response.json();
-        alert(data.message);
 
-        // ✅ Reset form
-        setFormData({
-          company: "",
-          email: "",
-          phone: "",
-          pickup: "",
-          drop: "",
-          date: "",
-          material: "",
-          weight: "",
-          vehicleType: "",
-          loadType: "FTL",
-        });
+        if (response.ok) {
+          // Show success popup
+          setShowSuccess(true);
+
+          // Reset form
+          setFormData({
+            company: "",
+            email: "",
+            phone: "",
+            pickup: "",
+            drop: "",
+            date: "",
+            material: "",
+            weight: "",
+            vehicleType: "",
+            loadType: "FTL",
+          });
+        } else {
+          alert(data.message || "Failed to submit quotation.");
+        }
       } else {
         const text = await response.text();
         console.error("Expected JSON but got:", text);
-        alert("Something went wrong! Check backend route.");
+        alert("Something went wrong! Please try again.");
       }
     } catch (error) {
       console.error(error);
-      alert("Error submitting quotation");
+      alert("Unable to submit quotation. Please try again later.");
     }
 
     setLoading(false);
@@ -81,13 +96,16 @@ function Quotation() {
       {/* Hero Section */}
       <header className="quotation-hero">
         <div className="quotation-overlay"></div>
+
         <div className="quotation-hero-content">
           <h1>Request a Quotation</h1>
-          <p>Fill out the form below and get a customized logistics quote.</p>
+          <p>
+            Fill out the form below and get a customized logistics quotation.
+          </p>
         </div>
       </header>
 
-      {/* Form Section */}
+      {/* Form */}
       <section className="quotation-section">
         <form className="quotation-form" onSubmit={handleSubmit}>
           <h2>Your Company Details</h2>
@@ -186,6 +204,7 @@ function Quotation() {
             >
               Full Truck Load
             </button>
+
             <button
               type="button"
               className={formData.loadType === "PTL" ? "active" : ""}
@@ -195,11 +214,43 @@ function Quotation() {
             </button>
           </div>
 
-          <button type="submit" className="quotation-button" disabled={loading}>
+          <button
+            type="submit"
+            className="quotation-button"
+            disabled={loading}
+          >
             {loading ? "Submitting..." : "Get Quotation"}
           </button>
         </form>
       </section>
+
+      {/* Success Popup */}
+      {showSuccess && (
+        <div className="success-overlay">
+          <div className="success-box">
+            <div className="success-icon">✅</div>
+
+            <h2>Quotation Submitted!</h2>
+
+            <p>
+              Thank you for choosing <strong>Amritha Logistics</strong>.
+            </p>
+
+            <p>
+              We have received your quotation request successfully.
+            </p>
+
+            <p>
+              Our logistics team will review your request and get back to you
+              shortly.
+            </p>
+
+            <button onClick={() => setShowSuccess(false)}>
+              OK
+            </button>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </div>

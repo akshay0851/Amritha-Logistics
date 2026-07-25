@@ -72,6 +72,12 @@ body {
   transition: all 0.3s ease;
 }
 
+.hero-button.animated {
+  background: transparent;
+  border: 2px solid white;
+  color: white;
+}
+
 .hero-button.animated:hover {
   transform: scale(1.1);
   background: #ffb703;
