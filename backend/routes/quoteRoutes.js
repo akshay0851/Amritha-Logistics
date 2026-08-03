@@ -6,20 +6,30 @@ const nodemailer = require("nodemailer");
 const emailUser = process.env.EMAIL_USER || "salesamrithalog@gmail.com";
 const emailPass = process.env.EMAIL_PASS || "";
 
-// ✅ Email transporter configuration (explicit SMTP for reliability)
+// ============================
+// Email Transporter
+// ============================
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
+  port: 587,
+  secure: false, // Use STARTTLS
   auth: {
     user: emailUser,
-    pass: emailPass
+    pass: emailPass,
+  },
+});
+
+// Verify SMTP connection
+transporter.verify((error, success) => {
+  if (error) {
+    console.error("❌ SMTP Connection Error:", error.message);
+  } else {
+    console.log("✅ SMTP Server is ready to send emails");
   }
 });
 
 // ============================
-// GET all quotations (For Admin Dashboard)
-// Path: GET /api/quotes
+// GET all quotations
 // ============================
 router.get("/quotes", async (req, res) => {
   try {
@@ -27,92 +37,133 @@ router.get("/quotes", async (req, res) => {
     res.status(200).json(quotes);
   } catch (error) {
     console.error("Error fetching quotes:", error);
-    res.status(500).json({ success: false, message: "Server Error" });
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
   }
 });
 
 // ============================
 // DELETE quotation
-// Path: DELETE /api/quotes/:id
 // ============================
 router.delete("/quotes/:id", async (req, res) => {
   try {
     const deletedQuote = await Quote.findByIdAndDelete(req.params.id);
+
     if (!deletedQuote) {
-      return res.status(404).json({ message: "Quote not found" });
+      return res.status(404).json({
+        success: false,
+        message: "Quote not found",
+      });
     }
-    res.json({ success: true, message: "Quote deleted successfully" });
+
+    res.json({
+      success: true,
+      message: "Quote deleted successfully",
+    });
   } catch (error) {
     console.error("Error deleting quote:", error);
-    res.status(500).json({ success: false, message: "Server error" });
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
   }
 });
 
 // ============================
 // POST new quotation
-// Path: POST /api/quote
 // ============================
 router.post("/quote", async (req, res) => {
   try {
     const {
-      company, pickup, drop, date, material, weight, vehicleType, loadType
+      company,
+      pickup,
+      drop,
+      date,
+      material,
+      weight,
+      vehicleType,
+      loadType,
     } = req.body;
 
-    // 1. Basic Validation
+    // Validation
     if (!company || !pickup || !drop) {
-      return res.status(400).json({ message: "Required fields are missing" });
+      return res.status(400).json({
+        success: false,
+        message: "Required fields are missing",
+      });
     }
 
-    // 2. Save to MongoDB
+    // Save quotation
     const newQuote = new Quote({
-      company, pickup, drop, date, material, weight, vehicleType, loadType
+      company,
+      pickup,
+      drop,
+      date,
+      material,
+      weight,
+      vehicleType,
+      loadType,
     });
+
     await newQuote.save();
+
     console.log("✅ Quotation saved to MongoDB");
 
-    // 3. Email notification setup
-    const mailOptions = {
-      from: emailUser,
-      to: emailUser,
-      subject: `New Quote Request from ${company}`,
-      text: `
-        You have received a new quotation request:
-
-        Company: ${company}
-        Pickup Location: ${pickup}
-        Drop Location: ${drop}
-        Date of Shipment: ${date}
-        Material Type: ${material}
-        Weight: ${weight}
-        Vehicle Type: ${vehicleType}
-        Load Type: ${loadType}
-
-        This data has also been saved to your admin dashboard.
-      `
-    };
-
-    // 4. Send Email (skip if credentials are missing)
-    if (emailUser && emailPass) {
-      await transporter.sendMail(mailOptions);
-      console.log("📧 Notification email sent successfully");
-    } else {
-      console.warn("⚠️ Email skipped because SMTP credentials are not configured");
-    }
-
-    // 5. Send final success response
+    // Respond immediately
     res.status(201).json({
       success: true,
-      message: "Quotation submitted successfully"
+      message: "Quotation submitted successfully!",
     });
 
+    // Send email in the background
+    if (emailUser && emailPass) {
+      const mailOptions = {
+        from: emailUser,
+        to: emailUser,
+        subject: `New Quote Request from ${company}`,
+        text: `
+You have received a new quotation request.
+
+Company: ${company}
+
+Pickup Location: ${pickup}
+
+Drop Location: ${drop}
+
+Date of Shipment: ${date}
+
+Material Type: ${material}
+
+Weight: ${weight}
+
+Vehicle Type: ${vehicleType}
+
+Load Type: ${loadType}
+
+This quotation has also been saved to the Admin Dashboard.
+`,
+      };
+
+      transporter
+        .sendMail(mailOptions)
+        .then(() => {
+          console.log("📧 Notification email sent successfully");
+        })
+        .catch((err) => {
+          console.error("❌ Email Error:", err.message);
+        });
+    } else {
+      console.warn("⚠️ Email skipped because SMTP credentials are missing.");
+    }
   } catch (error) {
     console.error("❌ Critical Error in /api/quote:", error);
-    
-    // Send a JSON error instead of letting it crash
+
     res.status(500).json({
       success: false,
-      message: "Server error occurred while processing your request.",
-      error: error.message
+      message: "Server error while processing quotation.",
     });
   }
 });
